@@ -83,4 +83,17 @@ RSpec.describe Parser do
       expect(parser.perform.first.first).to eq('2013-07-03..2018-11-22')
     end
   end
+
+  context 'when selected date range' do
+    before do
+      parser.granularity = :quarterly
+      parser.date_range = { filter_date_from: '2018-10-22', filter_date_to: '2018-11-21' }
+    end
+
+    it_behaves_like 'correct formatter'
+
+    it 'return correct date range' do
+      expect(parser.perform.first.first).to eq('2018-10-23..2018-11-21')
+    end
+  end
 end

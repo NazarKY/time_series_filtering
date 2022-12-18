@@ -8,10 +8,10 @@ class Parser
     quarterly: 91
   }
 
-  attr_accessor :order_dir, :granularity, :date, :filepath
+  attr_accessor :order_dir, :granularity, :date_range, :filepath
 
-  def initialize(order_dir: :asc, granularity: :daily, date: {}, filepath: 'data/data.json')
-    @date = date
+  def initialize(order_dir: :asc, granularity: :daily, date_range: {}, filepath: 'data/data.json')
+    @date_range = date_range
     @filepath = filepath
     @order_dir = order_dir
     @granularity = granularity
@@ -55,11 +55,11 @@ class Parser
   end
 
   def filter_date_from
-    @filter_date_from ||= (present?(@date[:filter_date_from]) ? @date[:filter_date_from] : "2000-01-01")
+    @filter_date_from ||= (present?(date_range[:filter_date_from]) ? date_range[:filter_date_from] : "2000-01-01")
   end
 
   def filter_date_to
-    @filter_date_to ||= (present?(@date[:filter_date_to]) ? @date[:filter_date_to] : DateTime.now.strftime('%Y-%m-%d'))
+    @filter_date_to ||= (present?(date_range[:filter_date_to]) ? date_range[:filter_date_to] : DateTime.now.strftime('%Y-%m-%d'))
   end
 
   def present?(val)
@@ -70,5 +70,3 @@ class Parser
     JSON.parse(File.read(filepath))
   end
 end
-
-Parser.new().perform
