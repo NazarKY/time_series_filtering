@@ -8,14 +8,15 @@ class Parser
     quarterly: 91
   }
 
-  def initialize(order_dir: :asc, granularity: :daily, date: {})
+  def initialize(order_dir: :asc, granularity: :daily, date: {}, filepath: 'data/data.json')
     @order_dir = order_dir
     @granularity = granularity
     @date = date
+    @filepath = filepath
   end
 
   def perform
-    p granulated_date_price
+    granulated_date_price
   end
 
   private
@@ -41,10 +42,14 @@ class Parser
 
   def dailies_date_price_in_range
     parsed_file.each_with_object([]) do |day_value, result|
-      next unless present?(day_value['price(USD)']) && (filter_date_from..filter_date_to).include?(day_value['date'])
+      next unless present?(day_value['price(USD)']) && day_in_date_range(day_value['date'])
 
       result << { date: day_value['date'], price: day_value['price(USD)'].to_f }
     end
+  end
+
+  def day_in_date_range(day)
+    filter_date_from <= day && day <= filter_date_to
   end
 
   def filter_date_from
@@ -60,8 +65,8 @@ class Parser
   end
 
   def parsed_file
-    JSON.parse(File.read("data/data.json"))
+    JSON.parse(File.read(@filepath))
   end
 end
 
-Parser.new(order_dir: :desc, granularity: :weekly).perform
+Parser.new().perform
