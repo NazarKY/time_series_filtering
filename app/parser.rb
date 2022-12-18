@@ -8,6 +8,8 @@ class Parser
     quarterly: 91
   }
 
+  attr_accessor :order_dir, :granularity, :date, :filepath
+
   def initialize(order_dir: :asc, granularity: :daily, date: {}, filepath: 'data/data.json')
     @order_dir = order_dir
     @granularity = granularity
@@ -26,15 +28,15 @@ class Parser
 
     sorted_dailies_date_price.each_slice(GRANULARITY_MAP[:weekly]).with_object([]) do |slice, result|
       granularity_val = GRANULARITY_MAP[:weekly] || slice.size
-      granularity_date = "#{slice.first[:date]}..#{slice.last[:date]}"
-      granularity_price = slice.inject(0.0) { |sum, day| sum + day[:price]} / granularity_val
+      granularity_date = "#{slice.first.first}..#{slice.last.first}"
+      granularity_price = slice.inject(0.0) { |sum, day| sum + day.last} / granularity_val
 
       result << [granularity_date, granularity_price.round(2)]
     end
   end
 
   def sorted_dailies_date_price
-    result = dailies_date_price_in_range.sort_by { |day_value| day_value[:date] }
+    result = dailies_date_price_in_range.sort_by { |day_value| day_value.first }
     return result if @order_dir === :asc
 
     result.reverse
@@ -44,7 +46,7 @@ class Parser
     parsed_file.each_with_object([]) do |day_value, result|
       next unless present?(day_value['price(USD)']) && day_in_date_range(day_value['date'])
 
-      result << { date: day_value['date'], price: day_value['price(USD)'].to_f }
+      result << [ day_value['date'], day_value['price(USD)'].to_f ]
     end
   end
 
