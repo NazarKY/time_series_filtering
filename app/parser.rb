@@ -26,8 +26,8 @@ class Parser
   def granulated_date_price
     return sorted_dailies_date_price if @granularity === :daily
 
-    sorted_dailies_date_price.each_slice(GRANULARITY_MAP[:weekly]).with_object([]) do |slice, result|
-      granularity_val = GRANULARITY_MAP[:weekly] || slice.size
+    sorted_dailies_date_price.each_slice(GRANULARITY_MAP[@granularity]).with_object([]) do |slice, result|
+      granularity_val = GRANULARITY_MAP[@granularity] || slice.size
       granularity_date = "#{slice.first.first}..#{slice.last.first}"
       granularity_price = slice.inject(0.0) { |sum, day| sum + day.last} / granularity_val
 
