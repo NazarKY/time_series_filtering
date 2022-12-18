@@ -11,10 +11,10 @@ class Parser
   attr_accessor :order_dir, :granularity, :date, :filepath
 
   def initialize(order_dir: :asc, granularity: :daily, date: {}, filepath: 'data/data.json')
-    @order_dir = order_dir
-    @granularity = granularity
     @date = date
     @filepath = filepath
+    @order_dir = order_dir
+    @granularity = granularity
   end
 
   def perform
@@ -24,10 +24,10 @@ class Parser
   private
 
   def granulated_date_price
-    return sorted_dailies_date_price if @granularity === :daily
+    return sorted_dailies_date_price if granularity === :daily
 
-    sorted_dailies_date_price.each_slice(GRANULARITY_MAP[@granularity]).with_object([]) do |slice, result|
-      granularity_val = GRANULARITY_MAP[@granularity] || slice.size
+    sorted_dailies_date_price.each_slice(GRANULARITY_MAP[granularity]).with_object([]) do |slice, result|
+      granularity_val = GRANULARITY_MAP[granularity] || slice.size
       granularity_date = "#{slice.first.first}..#{slice.last.first}"
       granularity_price = slice.inject(0.0) { |sum, day| sum + day.last} / granularity_val
 
@@ -37,7 +37,7 @@ class Parser
 
   def sorted_dailies_date_price
     result = dailies_date_price_in_range.sort_by { |day_value| day_value.first }
-    return result if @order_dir === :asc
+    return result if order_dir === :asc
 
     result.reverse
   end
@@ -67,7 +67,7 @@ class Parser
   end
 
   def parsed_file
-    JSON.parse(File.read(@filepath))
+    JSON.parse(File.read(filepath))
   end
 end
 
