@@ -35,18 +35,6 @@ RSpec.describe Parser do
     end
   end
 
-  context 'when selected ascending sort' do
-    before do
-      parser.order_dir = :asc
-    end
-
-    it_behaves_like 'correct formatter'
-
-    it 'return sorted days' do
-      expect(daily_dates).to eq(daily_dates.sort)
-    end
-  end
-
   context 'when selected weekly granularity' do
     before do
       parser.granularity = :weekly
@@ -96,6 +84,70 @@ RSpec.describe Parser do
 
     it 'return correct date range' do
       expect(parser.perform).to eq([['2018-11-21', 5355.65]])
+    end
+  end
+
+  context 'when selected ascending sort' do
+    before do
+      parser.order_dir = :asc
+    end
+
+    it_behaves_like 'correct formatter'
+
+    it 'return sorted days' do
+      expect(daily_dates).to eq(daily_dates.sort)
+    end
+
+    context 'when selected weekly granularity' do
+      before do
+        parser.granularity = :weekly
+      end
+
+      it_behaves_like 'correct formatter'
+
+      it 'return correct date range' do
+        expect(parser.perform.first).to eq(['2013-07-03', 79.45])
+        expect(parser.perform.last).to eq(['2018-11-19', 4890.46])
+      end
+    end
+
+    context 'when selected monthly granularity' do
+      before do
+        parser.granularity = :monthly
+      end
+
+      it_behaves_like 'correct formatter'
+
+      it 'return correct date range' do
+        expect(parser.perform.first).to eq(['2013-07-03', 79.45])
+        expect(parser.perform.last).to eq(['2018-11-19', 4890.46])
+      end
+    end
+
+    context 'when selected quarterly granularity' do
+      before do
+        parser.granularity = :quarterly
+      end
+
+      it_behaves_like 'correct formatter'
+
+      it 'return correct date range' do
+        expect(parser.perform.first).to eq(['2013-07-03', 79.45])
+        expect(parser.perform.last).to eq(['2018-10-23', 5206.84])
+      end
+    end
+
+    context 'when selected date range' do
+      before do
+        parser.granularity = :quarterly
+        parser.date_range = { filter_date_from: '2018-10-22', filter_date_to: '2018-11-21' }
+      end
+
+      it_behaves_like 'correct formatter'
+
+      it 'return correct date range' do
+        expect(parser.perform).to eq([['2018-10-23', 5355.65]])
+      end
     end
   end
 end
