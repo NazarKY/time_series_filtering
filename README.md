@@ -6,7 +6,9 @@
 irb
 require_relative 'main'
 time_series_filtering() # execute with default params
-time_series_filtering(order_dir: val, filter_date_from: val, filter_date_to: val, granularity: val) # execute with set params
+
+# execute with seted params
+time_series_filtering(order_dir: val, filter_date_from: val, filter_date_to: val, granularity: val) 
 ```
 
 ## To run tests
