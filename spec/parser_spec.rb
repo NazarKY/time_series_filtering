@@ -30,20 +30,20 @@ RSpec.describe Parser do
   context 'with default parameters' do
     it_behaves_like 'correct formatter'
 
-    it 'return sorted days' do
-      expect(daily_dates).to eq(daily_dates.sort)
+    it 'return reversely sorted days' do
+      expect(daily_dates).to eq(daily_dates.sort.reverse)
     end
   end
 
-  context 'when selected descending sort' do
+  context 'when selected ascending sort' do
     before do
-      parser.order_dir = :desc
+      parser.order_dir = :asc
     end
 
     it_behaves_like 'correct formatter'
 
     it 'return sorted days' do
-      expect(daily_dates).to eq(daily_dates.sort.reverse)
+      expect(daily_dates).to eq(daily_dates.sort)
     end
   end
 
@@ -55,8 +55,8 @@ RSpec.describe Parser do
     it_behaves_like 'correct formatter'
 
     it 'return correct date range' do
-      expect(parser.perform.first.first).to eq('2013-07-03..2018-11-19')
-      expect(parser.perform.last.first).to eq('2018-11-20..2018-11-22')
+      expect(parser.perform.first).to eq(['2018-11-22', 4890.46])
+      expect(parser.perform.last).to eq(['2013-07-06', 79.45])
     end
   end
 
@@ -68,7 +68,8 @@ RSpec.describe Parser do
     it_behaves_like 'correct formatter'
 
     it 'return correct date range' do
-      expect(parser.perform.first.first).to eq('2013-07-03..2018-11-22')
+      expect(parser.perform.first).to eq(['2018-11-22', 4890.46])
+      expect(parser.perform.last).to eq(['2013-07-06', 79.45])
     end
   end
 
@@ -80,7 +81,8 @@ RSpec.describe Parser do
     it_behaves_like 'correct formatter'
 
     it 'return correct date range' do
-      expect(parser.perform.first.first).to eq('2013-07-03..2018-11-22')
+      expect(parser.perform.first).to eq(['2018-11-22', 5206.84])
+      expect(parser.perform.last).to eq(['2013-07-06', 79.45])
     end
   end
 
@@ -93,7 +95,7 @@ RSpec.describe Parser do
     it_behaves_like 'correct formatter'
 
     it 'return correct date range' do
-      expect(parser.perform.first.first).to eq('2018-10-23..2018-11-21')
+      expect(parser.perform).to eq([['2018-11-21', 5355.65]])
     end
   end
 end

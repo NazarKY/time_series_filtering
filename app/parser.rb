@@ -39,28 +39,37 @@ class Parser
     con_price_sum = data.first.last
 
     data.each_cons(2).with_object([]) do |(prev_vals, next_vals), result|
-      if send("same_#{GRANULARITY_MAP[granularity]}_range?", prev_vals, next_vals, con_count)
+      prev_arr_date = prev_vals.first.split('-')
+      next_arr_date = next_vals.first.split('-')
+      same_range = send("same_#{GRANULARITY_MAP[granularity]}_range?", prev_arr_date, next_arr_date, con_count)
+      if same_range && data.last.first != next_vals.first
         con_price_sum += next_vals.last
         con_count += 1
       else
+        if data.last.first == next_vals.first
+          con_price_sum += next_vals.last
+          con_count += 1
+        end
         result << [start_date, (con_price_sum/con_count).round(2)]
         start_date = next_vals.first
-        con_price_sum = data.last.last
+        con_price_sum = next_vals.last
         con_count = 1
       end
     end
   end
 
-  def same_week_range?(prev_vals, next_vals, con_count)
-    (prev_vals.first.split('-')[2].to_i - next_vals.first.split('-')[2].to_i).abs == 1 && con_count < 7
+  def same_week_range?(prev_arr_date, next_arr_date, con_count)
+    return false unless prev_arr_date[0] == next_arr_date[0] && prev_arr_date[1] == next_arr_date[1]
+
+    (prev_arr_date[2].to_i - next_arr_date[2].to_i).abs == 1 && con_count < 7
   end
 
-  def same_month_range?(prev_vals, next_vals, _)
-    prev_vals.first.split('-')[1] == next_vals.first.split('-')[1]
+  def same_month_range?(prev_arr_date, next_arr_date, _)
+    prev_arr_date[0] == next_arr_date[0] && prev_arr_date[1] == next_arr_date[1]
   end
 
-  def same_quarter_range?(prev_vals, next_vals, _)
-    QUARTER_MAP[prev_vals.first.split('-')[1]] == QUARTER_MAP[next_vals.first.split('-')[1]]
+  def same_quarter_range?(prev_arr_date, next_arr_date, _)
+    prev_arr_date[0] == next_arr_date[0] && QUARTER_MAP[prev_arr_date[1]] == QUARTER_MAP[next_arr_date[1]]
   end
 
   def sorted_dailies_date_price
