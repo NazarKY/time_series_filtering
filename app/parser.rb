@@ -10,7 +10,7 @@ class Parser
 
   attr_accessor :order_dir, :granularity, :date_range, :filepath
 
-  def initialize(order_dir: :asc, granularity: :daily, date_range: {}, filepath: 'data/data.json')
+  def initialize(order_dir: :desc, granularity: :daily, date_range: {}, filepath: 'data/data.json')
     @date_range = date_range
     @filepath = filepath
     @order_dir = order_dir
