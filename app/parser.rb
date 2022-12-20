@@ -3,9 +3,16 @@ require 'date'
 
 class Parser
   GRANULARITY_MAP = {
-    weekly: 7,
-    monthly: 30,
-    quarterly: 91
+    weekly: :week,
+    monthly: :month,
+    quarterly: :quarter
+  }
+
+  QUARTER_MAP = {
+    '01' => :first, '02' => :first, '03' => :first,
+    '04' => :second, '05' => :second, '06' => :second,
+    '07' => :third, '08' => :third, '09' => :third,
+    '10' => :fourth, '11' => :fourth, '12' => :fourth
   }
 
   attr_accessor :order_dir, :granularity, :date_range, :filepath
@@ -24,15 +31,36 @@ class Parser
   private
 
   def granulated_date_price
-    return sorted_dailies_date_price if granularity === :daily
+    data = sorted_dailies_date_price
+    return data if granularity == :daily
 
-    sorted_dailies_date_price.each_slice(GRANULARITY_MAP[granularity]).with_object([]) do |slice, result|
-      granularity_val = GRANULARITY_MAP[granularity] || slice.size
-      granularity_date = "#{slice.first.first}..#{slice.last.first}"
-      granularity_price = slice.inject(0.0) { |sum, day| sum + day.last} / granularity_val
+    con_count = 1
+    start_date = data.first.first
+    con_price_sum = data.first.last
 
-      result << [granularity_date, granularity_price.round(2)]
+    data.each_cons(2).with_object([]) do |(prev_vals, next_vals), result|
+      if send("same_#{GRANULARITY_MAP[granularity]}_range?", prev_vals, next_vals, con_count)
+        con_price_sum += next_vals.last
+        con_count += 1
+      else
+        result << [start_date, (con_price_sum/con_count).round(2)]
+        start_date = next_vals.first
+        con_price_sum = data.last.last
+        con_count = 1
+      end
     end
+  end
+
+  def same_week_range?(prev_vals, next_vals, con_count)
+    (prev_vals.first.split('-')[2].to_i - next_vals.first.split('-')[2].to_i).abs == 1 && con_count < 7
+  end
+
+  def same_month_range?(prev_vals, next_vals, _)
+    prev_vals.first.split('-')[1] == next_vals.first.split('-')[1]
+  end
+
+  def same_quarter_range?(prev_vals, next_vals, _)
+    QUARTER_MAP[prev_vals.first.split('-')[1]] == QUARTER_MAP[next_vals.first.split('-')[1]]
   end
 
   def sorted_dailies_date_price
@@ -70,3 +98,4 @@ class Parser
     JSON.parse(File.read(filepath))
   end
 end
+
