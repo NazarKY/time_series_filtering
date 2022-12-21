@@ -5,4 +5,4 @@ def time_series_filtering(order_dir: :desc, filter_date_from: nil, filter_date_t
   Parser.new(order_dir: order_dir, granularity: granularity, date_range: date_range).perform
 end
 
-# p time_series_filtering(granularity: :quarterly)
+# p time_series_filtering(granularity: :weekly, order_dir: :asc)
